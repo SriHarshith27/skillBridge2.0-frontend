@@ -13,14 +13,106 @@ import Link from 'next/link'
 export function FeaturedCourses() {
   const [courses, setCourses] = useState<Course[]>([])
   const [isLoading, setIsLoading] = useState(true)
+  const [error, setError] = useState<string | null>(null)
 
   useEffect(() => {
     const fetchFeaturedCourses = async () => {
       try {
+        setError(null)
         const response = await courseService.getAllCourses({ limit: 6 })
         setCourses(response.data)
-      } catch (error) {
+      } catch (error: any) {
         console.error('Failed to fetch featured courses:', error)
+        setError(error.message || 'Failed to load courses')
+        
+        // Fallback to mock data if API fails
+        const mockCourses: Course[] = [
+          {
+            id: '1',
+            name: 'Complete Web Development Bootcamp',
+            description: 'Learn HTML, CSS, JavaScript, React, Node.js and more in this comprehensive course',
+            category: 'Web Development',
+            duration: 40,
+            mentorId: '1',
+            enrollments: Array(1250).fill(null),
+            mentor: { id: '1', username: 'Sarah Johnson', email: '', role: 'MENTOR', createdAt: '', updatedAt: '' },
+            modules: [],
+            assignments: [],
+            createdAt: '',
+            updatedAt: ''
+          },
+          {
+            id: '2',
+            name: 'Data Science with Python',
+            description: 'Master data analysis, machine learning, and visualization with Python',
+            category: 'Data Science',
+            duration: 35,
+            mentorId: '2',
+            enrollments: Array(890).fill(null),
+            mentor: { id: '2', username: 'Dr. Michael Chen', email: '', role: 'MENTOR', createdAt: '', updatedAt: '' },
+            modules: [],
+            assignments: [],
+            createdAt: '',
+            updatedAt: ''
+          },
+          {
+            id: '3',
+            name: 'UI/UX Design Fundamentals',
+            description: 'Learn design principles, user research, and create stunning interfaces',
+            category: 'Design',
+            duration: 25,
+            mentorId: '3',
+            enrollments: Array(650).fill(null),
+            mentor: { id: '3', username: 'Emma Rodriguez', email: '', role: 'MENTOR', createdAt: '', updatedAt: '' },
+            modules: [],
+            assignments: [],
+            createdAt: '',
+            updatedAt: ''
+          },
+          {
+            id: '4',
+            name: 'Mobile App Development with React Native',
+            description: 'Build cross-platform mobile apps using React Native and JavaScript',
+            category: 'Mobile Development',
+            duration: 30,
+            mentorId: '4',
+            enrollments: Array(420).fill(null),
+            mentor: { id: '4', username: 'Alex Thompson', email: '', role: 'MENTOR', createdAt: '', updatedAt: '' },
+            modules: [],
+            assignments: [],
+            createdAt: '',
+            updatedAt: ''
+          },
+          {
+            id: '5',
+            name: 'Digital Marketing Mastery',
+            description: 'Learn SEO, social media marketing, and digital advertising strategies',
+            category: 'Marketing',
+            duration: 20,
+            mentorId: '5',
+            enrollments: Array(780).fill(null),
+            mentor: { id: '5', username: 'Lisa Park', email: '', role: 'MENTOR', createdAt: '', updatedAt: '' },
+            modules: [],
+            assignments: [],
+            createdAt: '',
+            updatedAt: ''
+          },
+          {
+            id: '6',
+            name: 'Cloud Computing with AWS',
+            description: 'Master Amazon Web Services and cloud infrastructure deployment',
+            category: 'Cloud Computing',
+            duration: 45,
+            mentorId: '6',
+            enrollments: Array(320).fill(null),
+            mentor: { id: '6', username: 'David Kumar', email: '', role: 'MENTOR', createdAt: '', updatedAt: '' },
+            modules: [],
+            assignments: [],
+            createdAt: '',
+            updatedAt: ''
+          }
+        ]
+        setCourses(mockCourses)
       } finally {
         setIsLoading(false)
       }
@@ -69,6 +161,13 @@ export function FeaturedCourses() {
           <p className="text-xl text-muted-foreground max-w-2xl mx-auto">
             Discover our most popular and highly-rated courses taught by industry experts
           </p>
+          {error && (
+            <div className="mt-4 p-3 bg-yellow-50 border border-yellow-200 rounded-md">
+              <p className="text-sm text-yellow-800">
+                Using demo data - {error}
+              </p>
+            </div>
+          )}
         </div>
 
         <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6 mb-12">

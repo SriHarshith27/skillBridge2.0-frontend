@@ -11,8 +11,10 @@ class ApiClient {
       baseURL: API_BASE_URL,
       headers: {
         'Content-Type': 'application/json',
+        'Accept': 'application/json',
       },
       timeout: 30000, // 30 seconds
+      withCredentials: false, // Set to false for CORS
     })
 
     this.setupInterceptors()
@@ -26,6 +28,12 @@ class ApiClient {
         if (token) {
           config.headers.Authorization = `Bearer ${token}`
         }
+        
+        // Add CORS headers
+        config.headers['Access-Control-Allow-Origin'] = '*'
+        config.headers['Access-Control-Allow-Methods'] = 'GET, POST, PUT, DELETE, OPTIONS'
+        config.headers['Access-Control-Allow-Headers'] = 'Content-Type, Authorization'
+        
         return config
       },
       (error) => {
@@ -39,11 +47,16 @@ class ApiClient {
         return response
       },
       (error: AxiosError) => {
+        // Handle CORS errors
+        if (error.code === 'ERR_NETWORK' || error.message.includes('CORS')) {
+          console.error('CORS Error: Make sure your backend allows cross-origin requests from:', window.location.origin)
+        }
+        
         if (error.response?.status === 401) {
           this.removeAuthToken()
-          // Redirect to login page
-          if (typeof window !== 'undefined') {
-            window.location.href = '/login'
+          // Only redirect if we're in the browser and not already on login page
+          if (typeof window !== 'undefined' && !window.location.pathname.includes('/auth/login')) {
+            window.location.href = '/auth/login'
           }
         }
         return Promise.reject(error)
@@ -67,35 +80,70 @@ class ApiClient {
 
   public setAuthToken(token: string): void {
     if (typeof window !== 'undefined') {
-      Cookies.set('auth_token', token, { expires: 7, secure: true, sameSite: 'strict' })
+      Cookies.set('auth_token', token, { expires: 7, secure: false, sameSite: 'lax' })
       localStorage.setItem('auth_token', token)
     }
   }
 
-  // Generic HTTP methods
+  // Generic HTTP methods with better error handling
   async get<T>(url: string, params?: any): Promise<T> {
-    const response = await this.client.get(url, { params })
-    return response.data
+    try {
+      const response = await this.client.get(url, { params })
+      return response.data
+    } catch (error: any) {
+      if (error.code === 'ERR_NETWORK') {
+        throw new Error('Unable to connect to the server. Please check if the backend is running.')
+      }
+      throw error
+    }
   }
 
   async post<T>(url: string, data?: any, config?: any): Promise<T> {
-    const response = await this.client.post(url, data, config)
-    return response.data
+    try {
+      const response = await this.client.post(url, data, config)
+      return response.data
+    } catch (error: any) {
+      if (error.code === 'ERR_NETWORK') {
+        throw new Error('Unable to connect to the server. Please check if the backend is running.')
+      }
+      throw error
+    }
   }
 
   async put<T>(url: string, data?: any): Promise<T> {
-    const response = await this.client.put(url, data)
-    return response.data
+    try {
+      const response = await this.client.put(url, data)
+      return response.data
+    } catch (error: any) {
+      if (error.code === 'ERR_NETWORK') {
+        throw new Error('Unable to connect to the server. Please check if the backend is running.')
+      }
+      throw error
+    }
   }
 
   async patch<T>(url: string, data?: any): Promise<T> {
-    const response = await this.client.patch(url, data)
-    return response.data
+    try {
+      const response = await this.client.patch(url, data)
+      return response.data
+    } catch (error: any) {
+      if (error.code === 'ERR_NETWORK') {
+        throw new Error('Unable to connect to the server. Please check if the backend is running.')
+      }
+      throw error
+    }
   }
 
   async delete<T>(url: string): Promise<T> {
-    const response = await this.client.delete(url)
-    return response.data
+    try {
+      const response = await this.client.delete(url)
+      return response.data
+    } catch (error: any) {
+      if (error.code === 'ERR_NETWORK') {
+        throw new Error('Unable to connect to the server. Please check if the backend is running.')
+      }
+      throw error
+    }
   }
 
   // File upload method
@@ -115,8 +163,15 @@ class ApiClient {
       },
     }
 
-    const response = await this.client.post(url, formData, config)
-    return response.data
+    try {
+      const response = await this.client.post(url, formData, config)
+      return response.data
+    } catch (error: any) {
+      if (error.code === 'ERR_NETWORK') {
+        throw new Error('Unable to connect to the server. Please check if the backend is running.')
+      }
+      throw error
+    }
   }
 
   // Multiple file upload method
@@ -138,25 +193,39 @@ class ApiClient {
       },
     }
 
-    const response = await this.client.post(url, formData, config)
-    return response.data
+    try {
+      const response = await this.client.post(url, formData, config)
+      return response.data
+    } catch (error: any) {
+      if (error.code === 'ERR_NETWORK') {
+        throw new Error('Unable to connect to the server. Please check if the backend is running.')
+      }
+      throw error
+    }
   }
 
   // Download file method
   async downloadFile(url: string, filename: string): Promise<void> {
-    const response = await this.client.get(url, {
-      responseType: 'blob',
-    })
+    try {
+      const response = await this.client.get(url, {
+        responseType: 'blob',
+      })
 
-    const blob = new Blob([response.data])
-    const downloadUrl = window.URL.createObjectURL(blob)
-    const link = document.createElement('a')
-    link.href = downloadUrl
-    link.download = filename
-    document.body.appendChild(link)
-    link.click()
-    document.body.removeChild(link)
-    window.URL.revokeObjectURL(downloadUrl)
+      const blob = new Blob([response.data])
+      const downloadUrl = window.URL.createObjectURL(blob)
+      const link = document.createElement('a')
+      link.href = downloadUrl
+      link.download = filename
+      document.body.appendChild(link)
+      link.click()
+      document.body.removeChild(link)
+      window.URL.revokeObjectURL(downloadUrl)
+    } catch (error: any) {
+      if (error.code === 'ERR_NETWORK') {
+        throw new Error('Unable to connect to the server. Please check if the backend is running.')
+      }
+      throw error
+    }
   }
 }
 
