@@ -27,6 +27,7 @@ export function LoginForm() {
     setIsLoading(true);
 
     try {
+      console.log('Attempting login with:', { username: formData.username });
       await login(formData.username, formData.password);
       toast({
         title: "Login successful",

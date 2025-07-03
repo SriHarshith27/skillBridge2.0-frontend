@@ -19,13 +19,9 @@ export function FeaturedCourses() {
     const fetchFeaturedCourses = async () => {
       try {
         setError(null)
-        const response = await courseService.getAllCourses({ limit: 6 })
-        setCourses(response.data)
-      } catch (error: any) {
-        console.error('Failed to fetch featured courses:', error)
-        setError(error.message || 'Failed to load courses')
+        setIsLoading(true)
         
-        // Fallback to mock data if API fails
+        // Use mock data by default to avoid network errors during development
         const mockCourses: Course[] = [
           {
             id: '1',
@@ -112,7 +108,22 @@ export function FeaturedCourses() {
             updatedAt: ''
           }
         ]
+        
         setCourses(mockCourses)
+        
+        // Try to fetch real data, but don't fail if it doesn't work
+        try {
+          const response = await courseService.getAllCourses({ limit: 6 })
+          if (response && response.data && response.data.length > 0) {
+            setCourses(response.data)
+          }
+        } catch (apiError: any) {
+          console.warn('Using mock data - API error:', apiError.message)
+          setError(apiError.message || 'Failed to load courses from API')
+        }
+      } catch (error: any) {
+        console.error('Failed to fetch featured courses:', error)
+        setError(error.message || 'Failed to load courses')
       } finally {
         setIsLoading(false)
       }
