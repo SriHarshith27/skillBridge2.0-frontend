@@ -14,7 +14,7 @@ class ApiClient {
         'Accept': 'application/json',
       },
       timeout: 30000, // 30 seconds
-      withCredentials: false, // Set to false for CORS
+      withCredentials: true, // Changed to true to allow cookies to be sent
     })
 
     this.setupInterceptors()
@@ -29,10 +29,8 @@ class ApiClient {
           config.headers.Authorization = `Bearer ${token}`
         }
         
-        // Add CORS headers
-        config.headers['Access-Control-Allow-Origin'] = '*'
-        config.headers['Access-Control-Allow-Methods'] = 'GET, POST, PUT, DELETE, OPTIONS'
-        config.headers['Access-Control-Allow-Headers'] = 'Content-Type, Authorization'
+        // Remove CORS headers from client side - these should be set by the server
+        // Client-side CORS headers don't work and can cause issues
         
         return config
       },
@@ -49,7 +47,7 @@ class ApiClient {
       (error: AxiosError) => {
         // Handle CORS errors
         if (error.code === 'ERR_NETWORK' || error.message.includes('CORS')) {
-          console.error('CORS Error: Make sure your backend allows cross-origin requests from:', window.location.origin)
+          console.error('Network Error: Make sure your backend allows cross-origin requests from:', window.location.origin)
         }
         
         if (error.response?.status === 401) {

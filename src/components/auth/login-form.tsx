@@ -34,9 +34,10 @@ export function LoginForm() {
       });
       router.push('/dashboard');
     } catch (error: any) {
+      console.error('Login error details:', error);
       toast({
         title: "Login failed",
-        description: error.message || "Invalid credentials. Please try again.",
+        description: error.response?.data?.message || error.message || "Invalid credentials. Please try again.",
         variant: "destructive",
       });
     } finally {

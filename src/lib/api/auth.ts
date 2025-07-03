@@ -3,23 +3,33 @@ import { AuthResponse, LoginCredentials, RegisterData, User } from '@/types'
 
 export const authService = {
   async login(credentials: LoginCredentials): Promise<AuthResponse> {
-    const response = await apiClient.post<AuthResponse>('/auth/login', credentials)
-    
-    if (response.token) {
-      apiClient.setAuthToken(response.token)
+    try {
+      const response = await apiClient.post<AuthResponse>('/auth/login', credentials)
+      
+      if (response.token) {
+        apiClient.setAuthToken(response.token)
+      }
+      
+      return response
+    } catch (error: any) {
+      console.error('Login error:', error.response?.data || error.message)
+      throw error
     }
-    
-    return response
   },
 
   async register(userData: RegisterData): Promise<AuthResponse> {
-    const response = await apiClient.post<AuthResponse>('/auth/register', userData)
-    
-    if (response.token) {
-      apiClient.setAuthToken(response.token)
+    try {
+      const response = await apiClient.post<AuthResponse>('/auth/register', userData)
+      
+      if (response.token) {
+        apiClient.setAuthToken(response.token)
+      }
+      
+      return response
+    } catch (error: any) {
+      console.error('Registration error:', error.response?.data || error.message)
+      throw error
     }
-    
-    return response
   },
 
   async logout(): Promise<void> {
@@ -31,7 +41,12 @@ export const authService = {
   },
 
   async getCurrentUser(): Promise<User> {
-    return await apiClient.get<User>('/auth/me')
+    try {
+      return await apiClient.get<User>('/auth/me')
+    } catch (error: any) {
+      console.error('Get current user error:', error.response?.data || error.message)
+      throw error
+    }
   },
 
   async refreshToken(): Promise<AuthResponse> {
