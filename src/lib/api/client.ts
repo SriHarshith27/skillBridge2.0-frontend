@@ -11,10 +11,10 @@ class ApiClient {
       baseURL: API_BASE_URL,
       headers: {
         'Content-Type': 'application/json',
-        'Accept': 'application/json',
+        'Accept': 'application/json'
       },
       timeout: 30000, // 30 seconds
-      withCredentials: true, // Changed to true to allow cookies to be sent
+      withCredentials: true // Changed to true to allow cookies to be sent
     })
 
     this.setupInterceptors()
@@ -151,14 +151,14 @@ class ApiClient {
 
     const config = {
       headers: {
-        'Content-Type': 'multipart/form-data',
+        'Content-Type': 'multipart/form-data'
       },
       onUploadProgress: (progressEvent: any) => {
         if (onProgress && progressEvent.total) {
           const progress = Math.round((progressEvent.loaded * 100) / progressEvent.total)
           onProgress(progress)
         }
-      },
+      }
     }
 
     try {
@@ -181,14 +181,14 @@ class ApiClient {
 
     const config = {
       headers: {
-        'Content-Type': 'multipart/form-data',
+        'Content-Type': 'multipart/form-data'
       },
       onUploadProgress: (progressEvent: any) => {
         if (onProgress && progressEvent.total) {
           const progress = Math.round((progressEvent.loaded * 100) / progressEvent.total)
           onProgress(progress)
         }
-      },
+      }
     }
 
     try {
@@ -206,7 +206,7 @@ class ApiClient {
   async downloadFile(url: string, filename: string): Promise<void> {
     try {
       const response = await this.client.get(url, {
-        responseType: 'blob',
+        responseType: 'blob'
       })
 
       const blob = new Blob([response.data])
